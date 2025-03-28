@@ -44,3 +44,12 @@ passport.deserializeUser((user, done) => {
 app.listen(port, () => {
   console.log(`driveSync server is running on port ${port}`);
 });
+
+// *creating route for authentication
+app.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+app.get("/auth/google/callback", { failureRedirect: "/" }, async (req, res) => {
+  res.redirect("/");
+});
