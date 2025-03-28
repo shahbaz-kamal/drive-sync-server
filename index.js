@@ -32,6 +32,15 @@ passport.use(
   )
 );
 
+// saving the user object in the session
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+// retrieving the user object from the session
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
 app.listen(port, () => {
   console.log(`driveSync server is running on port ${port}`);
 });
