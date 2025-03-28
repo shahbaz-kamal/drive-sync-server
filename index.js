@@ -9,12 +9,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", async (req, res) => {
+  res.send("driveSync server is running");
+});
 
-app.get("/",async(req,res)=>{
-    res.send("driveSync server is running")
-})
+//* setting up passport
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
+passport.use(
+  new GoogleStrategy(
+    {
+      // secrets
+      callbackURL: "/auth/google/callback",
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    },
+    (accessToken, refreshToken, profile, done) => {
+      // will be handled by passport
+      console.log("handled by passport callback function");
+      return done(null, profile);
+    }
+  )
+);
 
-app.listen(port,()=>{
-    console.log(`driveSync server is running on port ${port}`)
-})
+app.listen(port, () => {
+  console.log(`driveSync server is running on port ${port}`);
+});
