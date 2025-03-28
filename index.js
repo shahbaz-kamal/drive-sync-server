@@ -77,7 +77,12 @@ app.listen(port, () => {
 app.get(
   "/auth/google",
   passport.authenticate("google", {
-    scope: ["profile", "email", "https://www.googleapis.com/auth/drive.file"],
+    scope: [
+      "profile",
+      "email",
+      "https://www.googleapis.com/auth/drive.file",
+      "https://www.googleapis.com/auth/spreadsheets",
+    ],
     accessType: "offline", //to get a refresh token
     prompt: "consent", //force consent to ensure refresh token is recieved
   })
@@ -211,3 +216,46 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
     });
   }
 });
+// Google Sheets setup
+const sheets = google.sheets({ version: 'v4', auth: oauth2client });
+// Endpoint to add data to Google Sheet
+app.post('/api/save-to-sheet', async (req, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+  
+      // Set credentials for the authenticated user
+      oauth2client.setCredentials({
+        access_token: req.user.accessToken,
+        refresh_token: req.user.refreshToken,
+      });
+  
+      const { name, phone, email, address, imageUrl } = req.body;
+  
+      // Append data to Google Sheet
+      const response = await sheets.spreadsheets.values.append({
+        spreadsheetId: process.env.SPREADSHEET_ID,
+        range: 'Sheet1', // Change to your sheet name
+        valueInputOption: 'RAW',
+        requestBody: {
+          values: [
+            [new Date().toISOString(), name, phone, email, address, imageUrl]
+          ],
+        },
+      });
+  
+      res.json({ 
+        success: true,
+        message: 'Data saved to Google Sheet',
+        data: response.data
+      });
+    } catch (error) {
+      console.error('Google Sheets Error:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to save to Google Sheet',
+        details: error.message 
+      });
+    }
+  });
