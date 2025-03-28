@@ -15,6 +15,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
+    "git-filter-repo": "^0.0.30",
     "googleapis": "^148.0.0",
     "multer": "^1.4.5-lts.2",
     "multer-google-drive": "^1.0.3",
